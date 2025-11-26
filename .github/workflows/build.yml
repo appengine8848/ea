@@ -7,25 +7,43 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-# 定义任务
 jobs:
   build:
     # 指定运行环境
     runs-on: windows-latest
 
+    # 【关键变更】为任务指定 MSYS2 的默认 shell
+    # 这会确保后续步骤都在正确的 MSYS2 环境中运行
+    defaults:
+      run:
+        shell: msys2 {0}
+
     steps:
-      # 步骤1: 检出代码
+      # 步骤1: 检出你的代码
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 步骤2: 编译 32-bit DLL (已修正)
+      # 步骤2: 【核心修正】安装 32-bit MinGW-w64 工具链
+      # 使用 msys2/setup-msys2 Action 来配置环境并安装必要的包
+      - name: Set up MSYS2 and install 32-bit toolchain
+        uses: msys2/setup-msys2@v2
+        with:
+          # 使用 MINGW32 环境（32位）
+          msystem: MINGW32
+          # 更新包数据库
+          update: true
+          # 安装 32-bit C++ 编译器和工具
+          install: >-
+            mingw-w64-i686-toolchain
+            
+      # 步骤3: 编译 32-bit DLL
       - name: Compile C++ to 32-bit DLL
-        # 关键变更：添加 -m32 标志来强制编译 32位 (x86) 架构的 DLL
-        run: g++ -shared -m32 -o MqlMapFile.dll MqlMapFile.cpp "-Wl,--add-stdcall-alias"
+        # 现在 g++ 命令会由新安装的 32-bit 环境提供，并能找到所有依赖库
+        run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp "-Wl,--add-stdcall-alias"
 
-      # 步骤3: 上传产物
+      # 步骤4: 上传产物
       - name: Upload 32-bit DLL artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiled-dll-x86 # 产物名称，明确标注为 x86
+          name: compiled-dll-x86
           path: MqlMapFile.dll
