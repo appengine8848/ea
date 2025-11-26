@@ -10,27 +10,21 @@ on:
 # 定义任务
 jobs:
   build:
-    # 关键：指定运行环境为最新的 Windows 服务器
+    # 指定运行环境为最新的 Windows 服务器
     runs-on: windows-latest
 
     steps:
       # 步骤1: 检出你的代码
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # 同时也将 checkout 更新到 v4
 
       # 步骤2: 编译 DLL
-      # 我们使用 g++ 编译器，它预装在 GitHub 的 Windows 环境中
       - name: Compile C++ to DLL
         run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp -Wl,--add-stdcall-alias
-        # g++: 编译器
-        # -shared: 生成共享库 (.dll)
-        # -o MqlMapFile.dll: 输出文件
-        # MqlMapFile.cpp: 输入文件
-        # -Wl,--add-stdcall-alias: 确保 MQL4 能正确调用函数
 
       # 步骤3: 上传编译好的 DLL 文件作为"产物"
       - name: Upload DLL artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # <-- 关键变更：将版本从 v3 升级到 v4
         with:
           name: compiled-dll # 产物的名称
           path: MqlMapFile.dll # 要上传的文件路径
