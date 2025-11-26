@@ -1,0 +1,4 @@
+EXPORTS
+    Mql_OpenFileMapping
+    Mql_WriteToMapFile
+    Mql_ReadFromMapFile
