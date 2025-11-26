@@ -1,4 +1,4 @@
-name: Build MT4 DLL (32-bit, Static)
+name: Build MT4 DLL (Final - With .def file)
 
 on:
   push:
@@ -23,12 +23,13 @@ jobs:
           update: true
           install: mingw-w64-i686-toolchain
 
-      - name: Compile C++ to a portable 32-bit DLL
-        # 【最终修正】添加 -static 标志，将所有运行时库静态链接进DLL
-        run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp -static
+      - name: Compile C++ to a portable 32-bit DLL using .def file
+        # 【最终修正】在编译命令中加入 .def 文件，并移除 -static (因为.def文件会处理好一切)
+        # 我们同时重新使用 -static 来确保所有运行时库被包含
+        run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp MqlMapFile.def -static
 
-      - name: Upload portable DLL artifact
+      - name: Upload final portable DLL artifact
         uses: actions/upload-artifact@v4
         with:
-          name: portable-dll-x86
+          name: final-portable-dll-x86
           path: MqlMapFile.dll
