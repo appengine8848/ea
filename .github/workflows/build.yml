@@ -1,5 +1,5 @@
 # 工作流名称
-name: Build MT4 DLL
+name: Build MT4 DLL (32-bit)
 
 # 触发条件
 on:
@@ -18,14 +18,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 步骤2: 编译 DLL (已修正)
-      - name: Compile C++ to DLL
-        # 关键变更：为包含逗号的参数添加引号，以防止 PowerShell 解析错误
-        run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp "-Wl,--add-stdcall-alias"
+      # 步骤2: 编译 32-bit DLL (已修正)
+      - name: Compile C++ to 32-bit DLL
+        # 关键变更：添加 -m32 标志来强制编译 32位 (x86) 架构的 DLL
+        run: g++ -shared -m32 -o MqlMapFile.dll MqlMapFile.cpp "-Wl,--add-stdcall-alias"
 
       # 步骤3: 上传产物
-      - name: Upload DLL artifact
+      - name: Upload 32-bit DLL artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiled-dll
+          name: compiled-dll-x86 # 产物名称，明确标注为 x86
           path: MqlMapFile.dll
