@@ -1,7 +1,7 @@
 # 工作流名称
 name: Build MT4 DLL
 
-# 触发条件：推送到 main 分支时，或在 Actions 页面手动触发
+# 触发条件
 on:
   push:
     branches: [ "main" ]
@@ -10,21 +10,22 @@ on:
 # 定义任务
 jobs:
   build:
-    # 指定运行环境为最新的 Windows 服务器
+    # 指定运行环境
     runs-on: windows-latest
 
     steps:
-      # 步骤1: 检出你的代码
+      # 步骤1: 检出代码
       - name: Checkout repository
-        uses: actions/checkout@v4 # 同时也将 checkout 更新到 v4
+        uses: actions/checkout@v4
 
-      # 步骤2: 编译 DLL
+      # 步骤2: 编译 DLL (已修正)
       - name: Compile C++ to DLL
-        run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp -Wl,--add-stdcall-alias
+        # 关键变更：为包含逗号的参数添加引号，以防止 PowerShell 解析错误
+        run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp "-Wl,--add-stdcall-alias"
 
-      # 步骤3: 上传编译好的 DLL 文件作为"产物"
+      # 步骤3: 上传产物
       - name: Upload DLL artifact
-        uses: actions/upload-artifact@v4 # <-- 关键变更：将版本从 v3 升级到 v4
+        uses: actions/upload-artifact@v4
         with:
-          name: compiled-dll # 产物的名称
-          path: MqlMapFile.dll # 要上传的文件路径
+          name: compiled-dll
+          path: MqlMapFile.dll
