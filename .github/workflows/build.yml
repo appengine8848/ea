@@ -1,7 +1,5 @@
-# 工作流名称
-name: Build MT4 DLL (32-bit, stdcall)
+name: Build MT4 DLL (32-bit, Static)
 
-# 触发条件
 on:
   push:
     branches: [ "main" ]
@@ -15,27 +13,22 @@ jobs:
         shell: msys2 {0}
 
     steps:
-      # 步骤1: 检出代码
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 步骤2: 安装 32-bit MinGW-w64 工具链
       - name: Set up MSYS2 and install 32-bit toolchain
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW32
           update: true
-          install: >-
-            mingw-w64-i686-toolchain
-            
-      # 步骤3: 编译 32-bit DLL
-      - name: Compile C++ to 32-bit DLL
-        # 【已修正】移除了不再需要的 --add-stdcall-alias 标志
-        run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp
+          install: mingw-w64-i686-toolchain
 
-      # 步骤4: 上传产物
-      - name: Upload 32-bit DLL artifact
+      - name: Compile C++ to a portable 32-bit DLL
+        # 【最终修正】添加 -static 标志，将所有运行时库静态链接进DLL
+        run: g++ -shared -o MqlMapFile.dll MqlMapFile.cpp -static
+
+      - name: Upload portable DLL artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiled-dll-x86-stdcall
+          name: portable-dll-x86
           path: MqlMapFile.dll
